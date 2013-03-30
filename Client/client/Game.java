@@ -20,11 +20,10 @@ import org.newdawn.slick.SlickException;
 public class Game extends BasicGame {
 
 	private final Map<Byte, Location> players = new HashMap<Byte, Location>();
-	private final ClientListener listener;
 
 	DatagramSocket socket;
 	InetAddress address;
-	int sendPort = 4445;
+	int sendPort = 4444;
 
 	int radius = 20;
 
@@ -34,9 +33,9 @@ public class Game extends BasicGame {
 		super(title);
 
 		socket = new DatagramSocket();
-		address = InetAddress.getByName(null);
-
-		listener = new ClientListener(players);
+		address = InetAddress.getByName("192.168.1.60");
+		
+		ClientListener listener = new ClientListener(players);
 		listener.start();
 
 	}

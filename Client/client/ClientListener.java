@@ -32,6 +32,9 @@ public class ClientListener extends Thread {
 
 				if (data[0] != 0) {
 					ByteBuffer bb = ByteBuffer.wrap(data, 1, data.length - 1);
+					
+					int x = bb.getInt();
+					int y = bb.getInt();
 
 					players.put(data[0], new Location(bb.getInt(), bb.getInt()));
 				}
@@ -39,7 +42,6 @@ public class ClientListener extends Thread {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-
 		}
 	}
 }
