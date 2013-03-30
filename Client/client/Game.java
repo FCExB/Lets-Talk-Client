@@ -25,7 +25,8 @@ public class Game extends BasicGame {
 	InetAddress address;
 	int sendPort = 4444;
 
-	int radius = 20;
+	int radius = 30;
+	int time;
 
 	Image semi;
 
@@ -71,47 +72,71 @@ public class Game extends BasicGame {
 	public void update(GameContainer container, int delta)
 			throws SlickException {
 
-		byte[] buf = new byte[] { 0 };
+		time += delta;
 
-		DatagramPacket packet = new DatagramPacket(buf, buf.length, address,
-				sendPort);
+		if (time >= 5) {
+			byte[] buf = new byte[] { 0 };
+
+			DatagramPacket packet = new DatagramPacket(buf, buf.length,
+					address, sendPort);
+
+			try {
+				socket.send(packet);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+
+			Input input = container.getInput();
+
+			byte x = 0, y = 0;
+
+			if (input.isKeyPressed(Input.KEY_SPACE)) {
+				y++;
+			}
+
+			if (input.isKeyDown(Input.KEY_RIGHT)) {
+
+				x++;
+			}
+
+			if (input.isKeyDown(Input.KEY_LEFT)) {
+
+				x--;
+			}
+
+			if (x != 0 || y != 0) {
+				buf = ByteBuffer.allocate(8).putInt(x).putInt(y).array();
+
+				packet = new DatagramPacket(buf, buf.length,
+						address, sendPort);
+
+				try {
+					socket.send(packet);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			time = 0;
+		}
+
+	}
+	
+	@Override
+	public boolean closeRequested(){
+		byte[] buf = new byte[] { 1 };
+
+		DatagramPacket packet = new DatagramPacket(buf, buf.length,
+				address, sendPort);
 
 		try {
 			socket.send(packet);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-
-		Input input = container.getInput();
-
-		byte x = 0, y = 0;
-
-		if (input.isKeyPressed(Input.KEY_SPACE)) {
-			y++;
-		}
-
-		if (input.isKeyDown(Input.KEY_RIGHT)) {
-
-			x++;
-		}
-
-		if (input.isKeyDown(Input.KEY_LEFT)) {
-
-			x--;
-		}
-
-		if (x != 0 || y != 0) {
-			buf = ByteBuffer.allocate(8).putInt(x).putInt(y).array();
-
-			packet = new DatagramPacket(buf, buf.length, address, sendPort);
-
-			try {
-				socket.send(packet);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
+		
+		
+		return true;
 	}
 
 }
