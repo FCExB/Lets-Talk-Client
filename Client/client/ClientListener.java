@@ -9,11 +9,11 @@ import java.util.Map;
 
 public class ClientListener extends Thread {
 
-	private final Map<Byte, Location> players;
+	private final Map<Byte, Location> entities;
 	DatagramSocket socket;
 
 	public ClientListener(Map<Byte, Location> players) throws SocketException {
-		this.players = players;
+		this.entities = players;
 
 		socket = new DatagramSocket(4445);
 	}
@@ -31,14 +31,14 @@ public class ClientListener extends Thread {
 				byte[] data = packet.getData();
 
 				if (packet.getLength() == 1) {
-					players.remove(data[0]);
+					entities.remove(data[0]);
 				} else {
 					ByteBuffer bb = ByteBuffer.wrap(data, 1, data.length - 1);
 
 					int x = bb.getInt();
 					int y = bb.getInt();
 
-					players.put(data[0], new Location(x, y));
+					entities.put(data[0], new Location(x, y));
 				}
 
 			} catch (IOException e) {

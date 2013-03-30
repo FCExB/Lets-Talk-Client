@@ -16,6 +16,7 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.geom.Circle;
 
 public class Game extends BasicGame {
 
@@ -63,7 +64,13 @@ public class Game extends BasicGame {
 			int x = entry.getValue().x + 400;
 			int y = 550 - entry.getValue().y;
 
-			semi.draw(x - radius, y - radius, radius * 2, radius);
+			if (entry.getKey() == 1) {
+				g.draw(new Circle(x, y, 10));
+			} else {
+
+				semi.draw(x - radius, y - radius, radius * 2, radius);
+			}
+
 		}
 
 	}
@@ -107,8 +114,7 @@ public class Game extends BasicGame {
 			if (x != 0 || y != 0) {
 				buf = ByteBuffer.allocate(8).putInt(x).putInt(y).array();
 
-				packet = new DatagramPacket(buf, buf.length,
-						address, sendPort);
+				packet = new DatagramPacket(buf, buf.length, address, sendPort);
 
 				try {
 					socket.send(packet);
@@ -116,26 +122,24 @@ public class Game extends BasicGame {
 					e.printStackTrace();
 				}
 			}
-			
+
 			time = 0;
 		}
 
 	}
-	
+
 	@Override
-	public boolean closeRequested(){
+	public boolean closeRequested() {
 		byte[] buf = new byte[] { 1 };
 
-		DatagramPacket packet = new DatagramPacket(buf, buf.length,
-				address, sendPort);
+		DatagramPacket packet = new DatagramPacket(buf, buf.length, address,
+				sendPort);
 
 		try {
 			socket.send(packet);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-		
-		
 		return true;
 	}
 }
