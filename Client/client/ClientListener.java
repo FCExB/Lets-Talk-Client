@@ -15,7 +15,7 @@ public class ClientListener extends Thread {
 	public ClientListener(Map<Byte, Location> players) throws SocketException {
 		this.players = players;
 
-		socket = new DatagramSocket(4444);
+		socket = new DatagramSocket(4445);
 	}
 
 	@Override
@@ -32,11 +32,11 @@ public class ClientListener extends Thread {
 
 				if (data[0] != 0) {
 					ByteBuffer bb = ByteBuffer.wrap(data, 1, data.length - 1);
-					
+
 					int x = bb.getInt();
 					int y = bb.getInt();
 
-					players.put(data[0], new Location(bb.getInt(), bb.getInt()));
+					players.put(data[0], new Location(x, y));
 				}
 
 			} catch (IOException e) {

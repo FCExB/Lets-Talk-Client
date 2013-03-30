@@ -33,8 +33,8 @@ public class Game extends BasicGame {
 		super(title);
 
 		socket = new DatagramSocket();
-		address = InetAddress.getByName("192.168.1.60");
-		
+		address = InetAddress.getByName(null);
+
 		ClientListener listener = new ClientListener(players);
 		listener.start();
 
