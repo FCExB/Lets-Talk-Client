@@ -30,7 +30,9 @@ public class ClientListener extends Thread {
 
 				byte[] data = packet.getData();
 
-				if (data[0] != 0) {
+				if (packet.getLength() == 1) {
+					players.remove(data[0]);
+				} else {
 					ByteBuffer bb = ByteBuffer.wrap(data, 1, data.length - 1);
 
 					int x = bb.getInt();
