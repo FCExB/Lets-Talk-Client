@@ -29,11 +29,12 @@ public class Game extends BasicGame {
 
 	Image semi;
 
-	public Game(String title) throws IOException, SlickException {
+	public Game(String title, String serverAddress) throws IOException,
+			SlickException {
 		super(title);
 
 		socket = new DatagramSocket();
-		address = InetAddress.getByName(null);
+		address = InetAddress.getByName(serverAddress);
 
 		ClientListener listener = new ClientListener(players);
 		listener.start();
