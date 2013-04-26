@@ -1,4 +1,4 @@
-Lets-Talk
+Lets Talk Client
 =========
 
-nope
+The client for my first test of java networking. A very dodgy UDP based multiplayer slime game.
