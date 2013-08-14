@@ -27,7 +27,7 @@ public class Game extends BasicGame {
 	int sendPort = 4444;
 
 	int radius = 30;
-	int time;
+	int controlTime, pingTime;
 
 	Image semi;
 
@@ -79,9 +79,10 @@ public class Game extends BasicGame {
 	public void update(GameContainer container, int delta)
 			throws SlickException {
 
-		time += delta;
+		controlTime += delta;
+		pingTime += delta;
 
-		if (time >= 5) {
+		if (pingTime >= 1000) {
 			byte[] buf = new byte[] { 0 };
 
 			DatagramPacket packet = new DatagramPacket(buf, buf.length,
@@ -93,6 +94,10 @@ public class Game extends BasicGame {
 				e1.printStackTrace();
 			}
 
+			pingTime = 0;
+		}
+
+		if (controlTime >= 100) {
 			Input input = container.getInput();
 
 			byte x = 0, y = 0;
@@ -112,9 +117,10 @@ public class Game extends BasicGame {
 			}
 
 			if (x != 0 || y != 0) {
-				buf = ByteBuffer.allocate(8).putInt(x).putInt(y).array();
+				byte[] buf = ByteBuffer.allocate(8).putInt(x).putInt(y).array();
 
-				packet = new DatagramPacket(buf, buf.length, address, sendPort);
+				DatagramPacket packet = new DatagramPacket(buf, buf.length,
+						address, sendPort);
 
 				try {
 					socket.send(packet);
@@ -123,7 +129,7 @@ public class Game extends BasicGame {
 				}
 			}
 
-			time = 0;
+			controlTime = 0;
 		}
 
 	}

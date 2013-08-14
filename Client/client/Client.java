@@ -9,7 +9,8 @@ public class Client {
 
 	public static void main(String[] args) throws SlickException, IOException {
 
-		AppGameContainer app = new AppGameContainer(new Game("Slime!", "192.168.1.60"));
+		AppGameContainer app = new AppGameContainer(new Game("Slime!",
+				"192.168.0.17"));
 		app.setDisplayMode(800, 600, false);
 		app.start();
 	}
