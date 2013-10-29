@@ -1,47 +1,80 @@
 package client;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.SocketException;
-import java.nio.ByteBuffer;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Map;
 
 public class ClientListener extends Thread {
 
-	private final Map<Byte, Location> entities;
-	DatagramSocket socket;
+	private final String serverAddress;
 
-	public ClientListener(Map<Byte, Location> players) throws SocketException {
-		this.entities = players;
+	private final Map<Integer, Entity> players;
 
-		socket = new DatagramSocket(4445);
+	private int numPlayers = 0;
+
+	public ClientListener(String serverAddress, Map<Integer, Entity> players)
+			throws IOException {
+		this.players = players;
+		this.serverAddress = serverAddress;
+
+		URL website = new URL(serverAddress);
+		URLConnection yc = website.openConnection();
+		BufferedReader in = new BufferedReader(new InputStreamReader(
+				yc.getInputStream()));
+		numPlayers = Integer.parseInt(in.readLine());
+
+		in.close();
+
+		// for (int i = 1; i < numPlayers + 1; i++) {
+		//
+		// website = new URL(serverAddress + "?player=" + i);
+		// System.out.println(website.toString());
+		// yc = website.openConnection();
+		// in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
+		//
+		// int x = Integer.parseInt(in.readLine());
+		// int y = Integer.parseInt(in.readLine());
+		//
+		// in.close();
+		//
+		// Vector location = new Vector(x, y);
+		// players.put(i, location);
+		// }
+
+	}
+
+	public int getNumber() {
+		return numPlayers;
 	}
 
 	@Override
 	public void run() {
-
 		while (true) {
-			byte[] buf = new byte[256];
-			DatagramPacket packet = new DatagramPacket(buf, buf.length);
-
 			try {
-				socket.receive(packet);
 
-				byte[] data = packet.getData();
+				for (int i = 1; i < numPlayers + 1; i++) {
 
-				if (packet.getLength() == 1) {
-					entities.remove(data[0]);
-				} else {
-					ByteBuffer bb = ByteBuffer.wrap(data, 1, data.length - 1);
+					URL website = new URL(serverAddress + "?player=" + i);
+					URLConnection yc = website.openConnection();
+					BufferedReader in = new BufferedReader(
+							new InputStreamReader(yc.getInputStream()));
 
-					int x = bb.getInt();
-					int y = bb.getInt();
+					players.get(i).location.x = Float.parseFloat(in.readLine());
+					players.get(i).location.y = Float.parseFloat(in.readLine());
 
-					entities.put(data[0], new Location(x, y));
+					players.get(i).velocity.x = Float.parseFloat(in.readLine());
+					players.get(i).velocity.y = Float.parseFloat(in.readLine());
+
+					System.out.println("From Server: " + players.get(i));
+
+					in.close();
+					sleep(5000);
 				}
 
-			} catch (IOException e) {
+			} catch (IOException | InterruptedException e) {
 				e.printStackTrace();
 			}
 		}

@@ -1,10 +1,6 @@
 package client;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,26 +16,37 @@ import org.newdawn.slick.geom.Circle;
 
 public class Game extends BasicGame {
 
-	private final Map<Byte, Location> players = new HashMap<Byte, Location>();
+	private final Map<Integer, Entity> players = new HashMap<Integer, Entity>();
 
-	DatagramSocket socket;
-	InetAddress address;
-	int sendPort = 4444;
+	private final String serverAddress;
+
+	Simulator sim = new Simulator();
 
 	int radius = 30;
-	int controlTime, pingTime;
+	int controlTime;
 
 	Image semi;
+
+	private final int playerNum;
 
 	public Game(String title, String serverAddress) throws IOException,
 			SlickException {
 		super(title);
+		this.serverAddress = serverAddress;
 
-		socket = new DatagramSocket();
-		address = InetAddress.getByName(serverAddress);
-
-		ClientListener listener = new ClientListener(players);
+		ClientListener listener = new ClientListener(serverAddress, players);
+		playerNum = listener.getNumber();
 		listener.start();
+
+		Simulator sim = new Simulator();
+
+		Entity ball = new Entity(1, 10, new Vector(200, 100));
+
+		sim.addEntity(ball);
+
+		players.put(1, ball);
+
+		sim.start();
 
 	}
 
@@ -59,10 +66,10 @@ public class Game extends BasicGame {
 		g.setColor(Color.white);
 		g.fillRect(398, 500, 4, 50);
 
-		for (Entry<Byte, Location> entry : players.entrySet()) {
+		for (Entry<Integer, Entity> entry : players.entrySet()) {
 
-			int x = entry.getValue().x + 400;
-			int y = 550 - entry.getValue().y;
+			int x = entry.getValue().location.getXAsInt() + 400;
+			int y = 550 - entry.getValue().location.getYAsInt();
 
 			if (entry.getKey() == 1) {
 				g.draw(new Circle(x, y, 10));
@@ -80,22 +87,6 @@ public class Game extends BasicGame {
 			throws SlickException {
 
 		controlTime += delta;
-		pingTime += delta;
-
-		if (pingTime >= 1000) {
-			byte[] buf = new byte[] { 0 };
-
-			DatagramPacket packet = new DatagramPacket(buf, buf.length,
-					address, sendPort);
-
-			try {
-				socket.send(packet);
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-
-			pingTime = 0;
-		}
 
 		if (controlTime >= 100) {
 			Input input = container.getInput();
@@ -117,16 +108,13 @@ public class Game extends BasicGame {
 			}
 
 			if (x != 0 || y != 0) {
-				byte[] buf = ByteBuffer.allocate(8).putInt(x).putInt(y).array();
-
-				DatagramPacket packet = new DatagramPacket(buf, buf.length,
-						address, sendPort);
-
-				try {
-					socket.send(packet);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				// try {
+				// URL website = new URL(serverAddress + "?player="
+				// + playerNum + "&x=" + x + "&y=" + y);
+				// website.openConnection();
+				// } catch (IOException e) {
+				// e.printStackTrace();
+				// }
 			}
 
 			controlTime = 0;
@@ -136,16 +124,7 @@ public class Game extends BasicGame {
 
 	@Override
 	public boolean closeRequested() {
-		byte[] buf = new byte[] { 1 };
 
-		DatagramPacket packet = new DatagramPacket(buf, buf.length, address,
-				sendPort);
-
-		try {
-			socket.send(packet);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
 		return true;
 	}
 }
